@@ -1,7 +1,7 @@
 name:                haskell-programming
 version:             0.1.0.0
 github:              "NevetScar/haskell-programming"
-license:             BSD-3-Clause
+license:             MIT
 author:              "NevetScar"
 maintainer:          "worldoptimizer@gmail.com"
 copyright:           "NevetScar 2023"
