@@ -1,0 +1,13 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:haskell-programming"
+
+    - path: "app/Main.hs"
+      component: "haskell-programming:exe:haskell-programming-exe"
+
+    - path: "app/Paths_haskell_programming.hs"
+      component: "haskell-programming:exe:haskell-programming-exe"
+
+    - path: "test"
+      component: "haskell-programming:test:haskell-programming-test"
