@@ -1,0 +1,10 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "fudgets-test:lib"
+
+    - path: "./app/Main.hs"
+      component: "fudgets-test:exe:fudgets-test-exe"
+
+    - path: "./test"
+      component: "fudgets-test:test:fudgets-test-test"
