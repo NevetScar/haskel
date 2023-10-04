@@ -1,0 +1,10 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "gui:lib"
+
+    - path: "./app/Main.hs"
+      component: "gui:exe:gui-exe"
+
+    - path: "./test"
+      component: "gui:test:gui-test"
