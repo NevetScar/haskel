@@ -46,6 +46,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - gui
+    - gi-gtk
+    - haskell-gi-base
 
 tests:
   gui-test:
