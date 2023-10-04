@@ -1,10 +1,10 @@
 cradle:
-  stack:
-    - path: "./src"
-      component: "fudgets-test:lib"
+  cabal:
+    - path: "src"
+      component: "lib:fudgets-test"
 
-    - path: "./app/Main.hs"
+    - path: "app/Main.hs"
       component: "fudgets-test:exe:fudgets-test-exe"
 
-    - path: "./test"
+    - path: "test"
       component: "fudgets-test:test:fudgets-test-test"

@@ -46,6 +46,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - fudgets-test
+    - fudgets
 
 tests:
   fudgets-test-test:

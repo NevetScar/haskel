@@ -1,6 +1,13 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main (main) where
 
-import Lib
+import Fudgets
+import ContribFudgets (filePickF)
+import AllFudgets (quitButtonF)
+import Data.Char (toUpper)
 
 main :: IO ()
-main = someFunc
+main = do
+        fudlogue (shellF "Hello" (mapF (fmap (map toUpper)) >==< filePickF))
+
+
