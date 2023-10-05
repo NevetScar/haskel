@@ -48,6 +48,7 @@ executables:
     - gui
     - gi-gtk
     - haskell-gi-base
+    - process
 
 tests:
   gui-test:
