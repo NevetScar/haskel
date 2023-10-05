@@ -3,23 +3,23 @@
 
 module Main (main) where
 
-import Data.GI.Base ( on, AttrOp((:=)), new )
+import Data.GI.Base ( on )
 import qualified GI.Gtk as Gtk
-import GI.Gtk (FileChooserAction(FileChooserActionOpen))
 
 main :: IO ()
 main = do
         Gtk.init Nothing
-        win <- new Gtk.Window [#title := "Choose a file"]
-        fc <- new Gtk.FileChooserDialog [ #action := FileChooserActionOpen ]
-        button <- new Gtk.Button [ #label := "Open dialog"]
-        on button #clicked(putStrLn "Hello world" )
+        win <- Gtk.windowNew Gtk.WindowTypeToplevel
+        box <- Gtk.boxNew Gtk.OrientationVertical 2
+        buttonO <- Gtk.buttonNewWithLabel "Open"
+        fc <- Gtk.fileChooserWidgetNew Gtk.FileChooserActionSelectFolder
         on win #destroy Gtk.mainQuit
-        #add win button
+        Gtk.after buttonO #clicked $ do
+                                      txt <- Gtk.fileChooserGetFilename fc
+                                      print txt
+        #add win box
+        #add box buttonO
+        #add box fc
         #showAll win
         Gtk.main
         putStrLn "Program finished"
-
-
-trial :: Gtk.FileChooserDialog -> IO FileChooserAction
-trial x = Gtk.fileChooserGetAction x
