@@ -4,7 +4,7 @@
 module Main (main) where
 
 import Data.GI.Base ( on )
-import System.Process
+import System.Process ( callCommand )
 import qualified GI.Gtk as Gtk
 
 main :: IO ()
