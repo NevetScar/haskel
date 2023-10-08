@@ -1,0 +1,10 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:practice"
+
+    - path: "app/Main.hs"
+      component: "practice:exe:practice"
+
+    - path: "test"
+      component: "practice:test:practice-test"
