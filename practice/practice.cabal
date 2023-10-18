@@ -96,7 +96,13 @@ executable practice
     build-depends:
         base ^>=4.17.2.0,
         practice,
-        optparse-applicative
+        optparse-applicative,
+        pdf-toolbox-core,
+        pdf-toolbox-document,
+        pdf-toolbox-content,
+        text,
+        directory,
+        filepath
 
     -- Directories containing source files.
     hs-source-dirs:   app
