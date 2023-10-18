@@ -11,10 +11,14 @@ main =
   do
     bp <- getExpulsados
     let x = Prelude.filter fst bp
-    let z = Prelude.map snd x
+    let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) x
     print $ Prelude.length z
-    mapM_ (Data.Text.putStrLn . pack) z
+    mapM_ mayfil z
 
+
+mayfil :: Maybe Text -> IO ()
+mayfil Nothing = putStrLn "Nothing to remove"
+mayfil (Just x)  = Data.Text.putStrLn x
 
 getExpulsados :: IO [(Bool, FilePath)]
 getExpulsados = Prelude.filter fst <$> zipp
