@@ -5,12 +5,14 @@ import Control.Monad
 import Data.Text
 import System.Directory
 import qualified Data.Text.IO as Data.Text
+import qualified Data.List as Prelude
 
 main :: IO ()
 main =
   do
     bp <- getMatchFrom getListOfPDFs
-    let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) bp
+    let sorte = Prelude.sort bp
+    let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) sorte
     print $ Prelude.length z
     mapM_ mayfil z
 
