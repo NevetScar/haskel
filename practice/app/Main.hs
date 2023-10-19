@@ -16,7 +16,7 @@ main =
     bp <- matchSearchIn (Prelude.map Prelude.toLower searchTerm) getListOfPDFs
     let sorte = Prelude.sort bp
     let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) sorte
-    print $ Prelude.length z
+    putStrLn $ "Se encontraron: " ++ show (Prelude.length z) ++ " coincidencias"
     mapM_ mayfil z
 
 
