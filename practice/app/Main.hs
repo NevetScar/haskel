@@ -16,13 +16,13 @@ main =
     bp <- matchSearchIn (Prelude.map Prelude.toLower searchTerm) getListOfPDFs
     let sorte = Prelude.sort bp
     let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) sorte
-    putStrLn $ "Se encontraron: " ++ show (Prelude.length z) ++ " coincidencias"
+    putStrLn $ "----------Se encontraron: " ++ show (Prelude.length z) ++ " coincidencias----------"
     mapM_ mayfil z
 
 
 mayfil :: Maybe Text -> IO ()
 mayfil Nothing = putStrLn "Nothing to remove"
-mayfil (Just x)  = Data.Text.putStrLn x
+mayfil (Just x)  = Data.Text.putStrLn (x <> pack ",")
 
 matchSearchIn :: String -> IO [FilePath] -> IO [(Bool, FilePath)]
 matchSearchIn searchTerm lstPdf = Prelude.filter fst <$> (Prelude.zip <$> filterEx lstPdf searchTerm  <*> lstPdf)
