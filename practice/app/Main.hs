@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import Pdf.Document
 import Control.Monad
@@ -9,9 +9,8 @@ import qualified Data.Text.IO as Data.Text
 main :: IO ()
 main =
   do
-    bp <- getExpulsados
-    let x = Prelude.filter fst bp
-    let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) x
+    bp <- getMatchFrom getListOfPDFs
+    let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) bp
     print $ Prelude.length z
     mapM_ mayfil z
 
@@ -20,19 +19,16 @@ mayfil :: Maybe Text -> IO ()
 mayfil Nothing = putStrLn "Nothing to remove"
 mayfil (Just x)  = Data.Text.putStrLn x
 
-getExpulsados :: IO [(Bool, FilePath)]
-getExpulsados = Prelude.filter fst <$> zipp
-
-zipp :: IO [(Bool, FilePath)]
-zipp = Prelude.zip <$> filterEx <*> getListOfPDFs
+getMatchFrom :: IO [FilePath] -> IO [(Bool, FilePath)]
+getMatchFrom lstPdf = Prelude.filter fst <$> (Prelude.zip <$> filterEx lstPdf <*> lstPdf)
 
 
-filterEx :: IO [Bool]
-filterEx =
+filterEx :: IO [FilePath] -> IO [Bool]
+filterEx lstPdf =
   do
-    lstPdf <- getListOfPDFs
-    txts <- getTextFromEach lstPdf
-    let y = Prelude.map hasExpulsado txts
+    lstPdfx <- lstPdf
+    txts <- getTextFromEach lstPdfx
+    let y = Prelude.map hasSearchTerm txts
     pure y
 
 getListOfPDFs :: IO [FilePath]
@@ -64,5 +60,5 @@ getTextPdf fp =
     let sizei = [0..(countx - 1)]
     Data.Text.concat <$> mapM (pageExtractText <=< pageNodePageByNum rootNode) sizei
 
-hasExpulsado :: Text -> Bool
-hasExpulsado txt = pack "interrumpido" `isInfixOf` toLower txt
+hasSearchTerm :: Text -> Bool
+hasSearchTerm txt = pack "interrumpido" `isInfixOf` toLower txt
