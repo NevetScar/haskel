@@ -60,8 +60,9 @@ getTextPdf fp =
     doc <- document pdf
     catalog <- documentCatalog doc
     rootNode <- catalogPageNode catalog
-    page <- pageNodePageByNum rootNode 0
-    pageExtractText page
+    countx <- pageNodeNKids rootNode
+    let sizei = [0..(countx - 1)]
+    Data.Text.concat <$> mapM (pageExtractText <=< pageNodePageByNum rootNode) sizei
 
 hasExpulsado :: Text -> Bool
-hasExpulsado txt = pack "expulsado" `isInfixOf` toLower txt
+hasExpulsado txt = pack "interrumpido" `isInfixOf` toLower txt
