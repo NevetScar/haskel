@@ -6,11 +6,14 @@ import Data.Text
 import System.Directory
 import qualified Data.Text.IO as Data.Text
 import qualified Data.List as Prelude
+import qualified Data.Char as Prelude
 
 main :: IO ()
 main =
   do
-    bp <- getMatchFrom getListOfPDFs
+    putStrLn "Termino a buscar: "
+    searchTerm <- getLine
+    bp <- matchSearchIn (Prelude.map Prelude.toLower searchTerm) getListOfPDFs
     let sorte = Prelude.sort bp
     let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) sorte
     print $ Prelude.length z
@@ -21,16 +24,16 @@ mayfil :: Maybe Text -> IO ()
 mayfil Nothing = putStrLn "Nothing to remove"
 mayfil (Just x)  = Data.Text.putStrLn x
 
-getMatchFrom :: IO [FilePath] -> IO [(Bool, FilePath)]
-getMatchFrom lstPdf = Prelude.filter fst <$> (Prelude.zip <$> filterEx lstPdf <*> lstPdf)
+matchSearchIn :: String -> IO [FilePath] -> IO [(Bool, FilePath)]
+matchSearchIn searchTerm lstPdf = Prelude.filter fst <$> (Prelude.zip <$> filterEx lstPdf searchTerm  <*> lstPdf)
 
 
-filterEx :: IO [FilePath] -> IO [Bool]
-filterEx lstPdf =
+filterEx :: IO [FilePath] -> String -> IO [Bool]
+filterEx lstPdf searchTerm =
   do
     lstPdfx <- lstPdf
     txts <- getTextFromEach lstPdfx
-    let y = Prelude.map hasSearchTerm txts
+    let y = Prelude.map (`hasSearchTerm` searchTerm) txts
     pure y
 
 getListOfPDFs :: IO [FilePath]
@@ -62,5 +65,5 @@ getTextPdf fp =
     let sizei = [0..(countx - 1)]
     Data.Text.concat <$> mapM (pageExtractText <=< pageNodePageByNum rootNode) sizei
 
-hasSearchTerm :: Text -> Bool
-hasSearchTerm txt = pack "interrumpido" `isInfixOf` toLower txt
+hasSearchTerm :: Text -> String -> Bool
+hasSearchTerm txt searchTerm = pack searchTerm `isInfixOf` toLower txt
