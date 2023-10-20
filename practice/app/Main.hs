@@ -11,41 +11,54 @@ import qualified Data.Char as Prelude
 main :: IO ()
 main =
   do
+    putStrLn "Presione p para proctoSearch o deje en blanco para búsqueda genérica: "
+    option <- getLine
+    ss <- getSortedSearch
+    if option == "p" then proctoSearch ss else genericSearch ss
+
+getSortedSearch :: IO (String, [(Bool, FilePath)])
+getSortedSearch =
+  do
     putStrLn "Termino a buscar: "
     searchTerm <- getLine
-    bp <- matchSearchIn (Prelude.map Prelude.toLower searchTerm) getListOfPDFs
-    let sorte = Prelude.sort bp
-    let z = Prelude.map (Data.Text.stripPrefix (pack currentDir) . (Data.Text.takeWhile (/= '_') . pack . snd)) sorte
-    putStrLn $ "----------Se encontraron: " ++ show (Prelude.length z) ++ " coincidencias----------"
+    putStrLn "Escoja el directorio"
+    d <- getLine
+    lstPdf <- getListOfPDFs d
+    bp <- Prelude.map Prelude.toLower searchTerm `findIn` lstPdf
+    pure (d, Prelude.sort bp)
+
+proctoSearch :: (String, [(Bool, FilePath)]) -> IO ()
+proctoSearch (d, sorte) = 
+  do
+    let z = Prelude.map (Data.Text.stripPrefix (pack d) . (Data.Text.takeWhile (/= '_') . pack . snd)) sorte
+    putStrLn $ "----------Se encontraron: " ++ show (Prelude.length z) ++ " coincidencias en " ++ d ++ "----------"
     mapM_ mayfil z
+  where
+    mayfil :: Maybe Text -> IO ()
+    mayfil Nothing = putStrLn "Nothing to remove"
+    mayfil (Just x)  = Data.Text.putStrLn (x <> pack ",")
 
-
-mayfil :: Maybe Text -> IO ()
-mayfil Nothing = putStrLn "Nothing to remove"
-mayfil (Just x)  = Data.Text.putStrLn (x <> pack ",")
-
-matchSearchIn :: String -> IO [FilePath] -> IO [(Bool, FilePath)]
-matchSearchIn searchTerm lstPdf = Prelude.filter fst <$> (Prelude.zip <$> filterEx lstPdf searchTerm  <*> lstPdf)
-
-
-filterEx :: IO [FilePath] -> String -> IO [Bool]
-filterEx lstPdf searchTerm =
+genericSearch :: (String, [(Bool, FilePath)]) -> IO ()
+genericSearch (d, sorte) = 
   do
-    lstPdfx <- lstPdf
-    txts <- getTextFromEach lstPdfx
+    putStrLn $ "----------Se encontraron: " ++ show (Prelude.length sorte) ++ " coincidencias en " ++ d ++ "----------"
+    mapM_ (Data.Text.putStrLn . pack . snd) sorte
+
+findIn ::  String -> [FilePath] -> IO [(Bool, FilePath)]
+findIn searchTerm lstPdf =
+  do
+    txts <- getTextFromEach lstPdf
     let y = Prelude.map (`hasSearchTerm` searchTerm) txts
-    pure y
+    let zipped = Prelude.zip y lstPdf
+    pure (Prelude.filter fst zipped)
 
-getListOfPDFs :: IO [FilePath]
-getListOfPDFs =
+getListOfPDFs :: FilePath -> IO [FilePath]
+getListOfPDFs d =
   do
-    a <- getDirectoryContents currentDir
-    let b = Prelude.filter (Data.Text.isSuffixOf (pack "pdf\"") . (pack . show)) a
-    let x = (currentDir <>) <$> b
+    a <- getDirectoryContents d
+    let b = Prelude.filter (Data.Text.isSuffixOf (pack "pdf") . pack) a
+    let x = (d <>) <$> b
     pure x
-
-currentDir :: FilePath
-currentDir = "/home/ft/Documents/AnalisisProcto/"
 
 getTextFromEach :: [FilePath] -> IO [Text]
 getTextFromEach = mapM getTextPdf
