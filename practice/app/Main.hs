@@ -1,12 +1,28 @@
 module Main (main) where
 
-import Pdf.Document
 import Control.Monad
-import Data.Text
-import System.Directory
-import qualified Data.Text.IO as Data.Text
-import qualified Data.List as Prelude
-import qualified Data.Char as Prelude
+  ( unless,
+    when,
+    (<=<),
+  )
+import qualified Data.Char as C
+import Data.List (sort)
+import Data.Text (Text, concat, isInfixOf, isSuffixOf, pack, stripPrefix, takeWhile, toLower)
+import qualified Data.Text.IO as TIO
+import Pdf.Document
+  ( catalogPageNode,
+    defaultUserPassword,
+    document,
+    documentCatalog,
+    isEncrypted,
+    pageExtractText,
+    pageNodeNKids,
+    pageNodePageByNum,
+    setUserPassword,
+    withPdfFile,
+  )
+import System.Directory (getDirectoryContents)
+import Prelude hiding (concat, takeWhile)
 
 main :: IO ()
 main =
@@ -24,39 +40,39 @@ getSortedSearch =
     putStrLn "Escoja el directorio"
     d <- getLine
     lstPdf <- getListOfPDFs d
-    bp <- Prelude.map Prelude.toLower searchTerm `findIn` lstPdf
-    pure (d, Prelude.sort bp)
+    bp <- map C.toLower searchTerm `findIn` lstPdf
+    pure (d, sort bp)
 
 proctoSearch :: (String, [(Bool, FilePath)]) -> IO ()
-proctoSearch (d, sorte) = 
+proctoSearch (d, sorte) =
   do
-    let z = Prelude.map (Data.Text.stripPrefix (pack d) . (Data.Text.takeWhile (/= '_') . pack . snd)) sorte
-    putStrLn $ "----------Se encontraron: " ++ show (Prelude.length z) ++ " coincidencias en " ++ d ++ "----------"
+    let z = map (stripPrefix (pack d) . (takeWhile (/= '_') . pack . snd)) sorte
+    putStrLn $ "----------Se encontraron: " ++ show (length z) ++ " coincidencias en " ++ d ++ "----------"
     mapM_ mayfil z
   where
     mayfil :: Maybe Text -> IO ()
     mayfil Nothing = putStrLn "Nothing to remove"
-    mayfil (Just x)  = Data.Text.putStrLn (x <> pack ",")
+    mayfil (Just x) = TIO.putStrLn (x <> pack ",")
 
 genericSearch :: (String, [(Bool, FilePath)]) -> IO ()
-genericSearch (d, sorte) = 
+genericSearch (d, sorte) =
   do
-    putStrLn $ "----------Se encontraron: " ++ show (Prelude.length sorte) ++ " coincidencias en " ++ d ++ "----------"
-    mapM_ (Data.Text.putStrLn . pack . snd) sorte
+    putStrLn $ "----------Se encontraron: " ++ show (length sorte) ++ " coincidencias en " ++ d ++ "----------"
+    mapM_ (TIO.putStrLn . pack . snd) sorte
 
-findIn ::  String -> [FilePath] -> IO [(Bool, FilePath)]
+findIn :: String -> [FilePath] -> IO [(Bool, FilePath)]
 findIn searchTerm lstPdf =
   do
     txts <- getTextFromEach lstPdf
-    let y = Prelude.map (`hasSearchTerm` searchTerm) txts
-    let zipped = Prelude.zip y lstPdf
-    pure (Prelude.filter fst zipped)
+    let y = map (`hasSearchTerm` searchTerm) txts
+    let zipped = zip y lstPdf
+    pure (filter fst zipped)
 
 getListOfPDFs :: FilePath -> IO [FilePath]
 getListOfPDFs d =
   do
     a <- getDirectoryContents d
-    let b = Prelude.filter (Data.Text.isSuffixOf (pack "pdf") . pack) a
+    let b = filter (isSuffixOf (pack "pdf") . pack) a
     let x = (d <>) <$> b
     pure x
 
@@ -75,8 +91,8 @@ getTextPdf fp =
     catalog <- documentCatalog doc
     rootNode <- catalogPageNode catalog
     countx <- pageNodeNKids rootNode
-    let sizei = [0..(countx - 1)]
-    Data.Text.concat <$> mapM (pageExtractText <=< pageNodePageByNum rootNode) sizei
+    let sizei = [0 .. (countx - 1)]
+    concat <$> mapM (pageExtractText <=< pageNodePageByNum rootNode) sizei
 
 hasSearchTerm :: Text -> String -> Bool
 hasSearchTerm txt searchTerm = pack searchTerm `isInfixOf` toLower txt
