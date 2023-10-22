@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main (main) where
 
 import Control.Monad
@@ -6,9 +9,11 @@ import Control.Monad
     (<=<),
   )
 import qualified Data.Char as C
+import Data.GI.Base (on)
 import Data.List (sort)
 import Data.Text (Text, concat, isInfixOf, isSuffixOf, pack, stripPrefix, takeWhile, toLower)
 import qualified Data.Text.IO as TIO
+import qualified GI.Gtk as Gtk
 import Pdf.Document
   ( catalogPageNode,
     defaultUserPassword,
@@ -25,23 +30,7 @@ import System.Directory (getDirectoryContents)
 import Prelude hiding (concat, takeWhile)
 
 main :: IO ()
-main =
-  do
-    putStrLn "Presione p para proctoSearch o deje en blanco para búsqueda genérica: "
-    option <- getLine
-    ss <- getSortedSearch
-    if option == "p" then proctoSearch ss else genericSearch ss
-
-getSortedSearch :: IO (String, [(Bool, FilePath)])
-getSortedSearch =
-  do
-    putStrLn "Termino a buscar: "
-    searchTerm <- getLine
-    putStrLn "Escoja el directorio"
-    d <- getLine
-    lstPdf <- getListOfPDFs d
-    bp <- map C.toLower searchTerm `findIn` lstPdf
-    pure (d, sort bp)
+main = myIo
 
 proctoSearch :: (String, [(Bool, FilePath)]) -> IO ()
 proctoSearch (d, sorte) =
@@ -96,3 +85,34 @@ getTextPdf fp =
 
 hasSearchTerm :: Text -> String -> Bool
 hasSearchTerm txt searchTerm = pack searchTerm `isInfixOf` toLower txt
+
+myIo :: IO ()
+myIo = do
+  putStrLn "Presione p para proctoSearch o deje en blanco para búsqueda genérica: "
+  option <- getLine
+  putStrLn "Termino a buscar: "
+  searchTerm <- getLine
+  putStrLn "Escoja el directorio"
+  _ <- Gtk.init Nothing
+  win <- Gtk.windowNew Gtk.WindowTypeToplevel
+  box <- Gtk.boxNew Gtk.OrientationVertical 2
+  buttonO <- Gtk.buttonNewWithLabel "Open"
+  fc <- Gtk.fileChooserWidgetNew Gtk.FileChooserActionOpen
+  _ <- on win #destroy Gtk.mainQuit
+  _ <- Gtk.after buttonO #clicked $ do
+    txt <- Gtk.fileChooserGetFilename fc
+    case txt of
+      Nothing -> putStrLn "Nothing selected"
+      Just s -> do
+        let cs = s ++ "/"
+        lstPdf <- getListOfPDFs cs
+        bp <- map C.toLower searchTerm `findIn` lstPdf
+        let ss = (cs, sort bp)
+        if option == "p" then proctoSearch ss else genericSearch ss
+        Gtk.mainQuit
+  #add win box
+  #add box buttonO
+  #add box fc
+  #showAll win
+  Gtk.main
+  putStrLn "Program finished"

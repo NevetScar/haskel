@@ -102,7 +102,10 @@ executable practice
         pdf-toolbox-content,
         text,
         directory,
-        filepath
+        filepath, 
+        gi-gtk == 3.0.41, 
+        haskell-gi-base == 0.26.4, 
+        process
 
     -- Directories containing source files.
     hs-source-dirs:   app
