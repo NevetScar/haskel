@@ -97,7 +97,7 @@ myIo = do
   win <- Gtk.windowNew Gtk.WindowTypeToplevel
   box <- Gtk.boxNew Gtk.OrientationVertical 2
   buttonO <- Gtk.buttonNewWithLabel "Open"
-  fc <- Gtk.fileChooserWidgetNew Gtk.FileChooserActionOpen
+  fc <- Gtk.fileChooserWidgetNew Gtk.FileChooserActionSelectFolder
   _ <- on win #destroy Gtk.mainQuit
   _ <- Gtk.after buttonO #clicked $ do
     txt <- Gtk.fileChooserGetFilename fc
